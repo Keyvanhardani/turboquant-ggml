@@ -155,10 +155,12 @@ Tested on wikitext-2 (ctx=512, 5 chunks) with our [llama.cpp integration](https:
 |-------|---------|-------------|-------|-----------|
 | **Llama-3.2-3B** Q4_K_M | 9.77 | 9.82 | **+0.4%** | 224 -> 63 MiB |
 | **Qwen2.5-3B** Q4_K_M | 9.14 | 9.84 | +7.7% | 72 -> 20 MiB |
+| **Qwen3-4B** Q4_K_M | 17.78 | 16.61 | **-6.6%** | 288 -> 81 MiB |
 | **Qwen3VL-8B** Q4_K_M | 8.15 | 8.57 | +5.2% | 288 -> 81 MiB |
 | **Qwen3VL-30B-A3B** Q4_K_M | 6.24 | 6.63 | +6.3% | 192 -> 54 MiB |
+| **Qwen3.5-35B-A3B** Q4_K_XL | 5.91 | 6.07 | **+2.7%** | 40 -> 11 MiB |
 
-turbo4_0 achieves **3.6x KV cache compression** with near-lossless quality on Llama (+0.4%) and moderate impact on Qwen (+5-8%).
+Larger models benefit more from TurboQuant. The **Qwen3.5-35B** achieves only **+2.7% PPL** at 3.6x compression — and turbo3_0 (4.6x) is even better at **+2.0%** on this model.
 
 Cross-platform verified: identical results on WSL2 Linux and native Windows.
 
