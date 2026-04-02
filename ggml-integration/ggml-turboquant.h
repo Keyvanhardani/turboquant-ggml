@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "ggml.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,6 +72,11 @@ void quantize_row_turbo2_0_ref(const float * x, block_turbo2_0 * y, int64_t k);
 size_t quantize_turbo4_0(const float * src, void * dst, int64_t nrows, int64_t n_per_row, const float * imatrix);
 size_t quantize_turbo3_0(const float * src, void * dst, int64_t nrows, int64_t n_per_row, const float * imatrix);
 size_t quantize_turbo2_0(const float * src, void * dst, int64_t nrows, int64_t n_per_row, const float * imatrix);
+
+/* vec_dot for Flash Attention (K dot Q on quantized K blocks) */
+void ggml_vec_dot_turbo4_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+void ggml_vec_dot_turbo3_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+void ggml_vec_dot_turbo2_0_q8_0(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
 
 #ifdef __cplusplus
 }

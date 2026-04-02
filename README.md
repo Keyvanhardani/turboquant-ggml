@@ -147,20 +147,28 @@ Input vector (FP16)
 Compressed block (14 bytes for 32 FP16 elements)
 ```
 
-## Benchmarks
+## Benchmarks — Real Model Perplexity
 
-Measured on random vectors (100 trials, dim=128):
+Tested on wikitext-2 (ctx=512, 5 chunks) with our [llama.cpp integration](https://github.com/Keyvanhardani/llama.cpp-turboquant/tree/feature/turboquant-kv-cache):
 
-| Type | Bits/elem | Compression | MSE | Storage/block |
-|------|-----------|------------|-----|--------------|
-| FP16 | 16.0 | 1.0x | 0.000 | 64 bytes |
-| Q8_0 | 8.5 | 1.9x | ~0.001 | 34 bytes |
-| Q4_0 | 4.5 | 3.6x | ~0.01 | 18 bytes |
-| **TQ4_0** | **4.5** | **3.6x** | **0.003** | **18 bytes** |
-| **TQ3_0** | **3.5** | **4.6x** | **0.011** | **14 bytes** |
-| **TQ2_0** | **2.5** | **6.4x** | — | **10 bytes** |
+| Model | f16 PPL | turbo4_0 PPL | Delta | KV Memory |
+|-------|---------|-------------|-------|-----------|
+| **Llama-3.2-3B** Q4_K_M | 9.77 | 9.82 | **+0.4%** | 224 -> 63 MiB |
+| **Qwen2.5-3B** Q4_K_M | 9.14 | 9.84 | +7.7% | 72 -> 20 MiB |
+| **Qwen3VL-8B** Q4_K_M | 8.15 | 8.57 | +5.2% | 288 -> 81 MiB |
+| **Qwen3VL-30B-A3B** Q4_K_M | 6.24 | 6.63 | +6.3% | 192 -> 54 MiB |
 
-TQ4 achieves **3x lower MSE** than Q4_0 at identical storage cost, thanks to the optimal codebook.
+turbo4_0 achieves **3.6x KV cache compression** with near-lossless quality on Llama (+0.4%) and moderate impact on Qwen (+5-8%).
+
+Cross-platform verified: identical results on WSL2 Linux and native Windows.
+
+### Synthetic benchmarks (10k vectors, dim=128)
+
+| Type | Bits/elem | Compression | MSE | Cosine Sim |
+|------|-----------|------------|-----|------------|
+| **TQ4_0** | **4.5** | **3.6x** | **0.008** | **0.996** |
+| **TQ3_0** | **3.5** | **4.6x** | **0.031** | **0.985** |
+| **TQ2_0** | **2.5** | **6.4x** | **0.112** | **0.944** |
 
 ## Community validation (from [llama.cpp #20969](https://github.com/ggml-org/llama.cpp/discussions/20969))
 
