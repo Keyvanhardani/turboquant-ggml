@@ -23,6 +23,10 @@ target_link_libraries(test_turboquant PRIVATE turboquant m)
 
 add_test(NAME turboquant_tests COMMAND test_turboquant)
 
+add_executable(test_full tests/test_full.c)
+target_link_libraries(test_full PRIVATE turboquant m)
+add_test(NAME turboquant_full COMMAND test_full)
+
 # ─── Benchmark (optional) ─────────────────────────────────────────────
 
 option(TQ_BUILD_BENCH "Build benchmark" OFF)
