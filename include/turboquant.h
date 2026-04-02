@@ -8,7 +8,8 @@
  * Based on community findings: WHT >> random rotation, MSE-only >> QJL,
  * block_size=32 optimal for flash attention.
  *
- * MIT License — Keyvan Hardani
+ * Author: Keyvan Hardani (https://github.com/Keyvanhardani)
+ * License: MIT
  */
 
 #ifndef TURBOQUANT_H

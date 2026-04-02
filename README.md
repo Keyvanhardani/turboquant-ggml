@@ -184,13 +184,28 @@ Stores `original_norm / ||reconstruction||` instead of raw norm. Zero decode cos
 
 Keys need more precision than values. Qwen models show 100-180x K/V norm ratio. Recommended: 4-bit K, 2-3 bit V.
 
+## Author
+
+**Keyvan Hardani** — [GitHub](https://github.com/Keyvanhardani) | [LinkedIn](https://www.linkedin.com/in/keyvanhardani/)
+
 ## License
 
 MIT
 
 ## Citation
 
+If you use this implementation, please cite both the original paper and this work:
+
 ```bibtex
+@software{hardani2026turboquant_ggml,
+  title={turboquant-ggml: TurboQuant KV Cache Compression for llama.cpp and Ollama},
+  author={Hardani, Keyvan},
+  url={https://github.com/Keyvanhardani/turboquant-ggml},
+  year={2026},
+  note={GGML-compatible implementation with norm correction, WHT rotation,
+        and Lloyd-Max optimal codebooks. 42 tests, drop-in integration.}
+}
+
 @inproceedings{zandieh2026turboquant,
   title={TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate},
   author={Zandieh, Amir and Daliri, Majid and Hadian, Ali and Mirrokni, Vahab},

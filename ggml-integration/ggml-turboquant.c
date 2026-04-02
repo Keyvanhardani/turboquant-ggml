@@ -1,6 +1,7 @@
 /*
  * ggml-turboquant.c — TurboQuant quantization for GGML/llama.cpp
  *
+ * Author: Keyvan Hardani (https://github.com/Keyvanhardani)
  * Drop this into ggml/src/ alongside ggml-quants.c
  *
  * Algorithm: WHT rotation + Lloyd-Max optimal scalar quantization

@@ -1,6 +1,7 @@
 /*
  * ggml-turboquant.h — TurboQuant type definitions for GGML
  *
+ * Author: Keyvan Hardani (https://github.com/Keyvanhardani)
  * Drop this into ggml/include/ and include from ggml-quants.h
  *
  * Based on Google's TurboQuant (ICLR 2026, arXiv:2504.19874)
