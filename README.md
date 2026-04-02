@@ -43,10 +43,15 @@ cmake --build build
 ## Architecture
 
 ```
-include/turboquant.h       # GGML-compatible API + block structs
-src/turboquant.c           # Core: WHT, quantize, dequantize, bit-packing
-src/turboquant-tables.c    # Precomputed Lloyd-Max codebooks
-tests/test_turboquant.c    # Comprehensive test suite
+include/turboquant.h              # GGML-compatible API + block structs
+src/turboquant.c                  # Core: WHT, quantize, dequantize, bit-packing
+src/turboquant-tables.c           # Precomputed Lloyd-Max codebooks
+tests/test_turboquant.c           # Test suite (19/19 passing)
+tests/bench_turboquant.c          # Performance benchmark
+ggml-integration/
+  ggml-turboquant.h               # Drop-in header for llama.cpp
+  ggml-turboquant.c               # Drop-in implementation for llama.cpp
+  INTEGRATION.md                  # Step-by-step llama.cpp integration guide
 ```
 
 ### Block formats (GGML-compatible)
@@ -93,18 +98,30 @@ dequantize_row_tq3_0(compressed, reconstructed, 128, 128);
 
 Sources: [llama.cpp Discussion #20969](https://github.com/ggml-org/llama.cpp/discussions/20969), [ik_llama.cpp #1509](https://github.com/ikawrakow/ik_llama.cpp/issues/1509)
 
-## llama.cpp integration roadmap
+## llama.cpp integration
 
-This library is designed as a drop-in for llama.cpp's quantization system:
+Ready-to-use GGML integration files in `ggml-integration/`. See [INTEGRATION.md](ggml-integration/INTEGRATION.md) for the step-by-step guide.
+
+**5 files to modify, 2 files to add** — that's it.
+
+```bash
+# Usage after integration:
+./llama-server -m model.gguf --cache-type-k turbo3_0 --cache-type-v turbo3_0 --flash-attn on
+
+# Ollama (after rebuild):
+OLLAMA_KV_CACHE_TYPE=turbo3_0 ollama run llama3
+```
+
+### Roadmap
 
 - [x] **Phase 1**: Block structs + type registration interfaces
-- [x] **Phase 2**: CPU quantize/dequantize (pure C, zero dependencies)
-- [x] **Phase 3**: Comprehensive test suite (19/19 passing)
-- [ ] **Phase 4**: GGML type registration (`GGML_TYPE_TQ3`, `GGML_TYPE_TQ4`)
-- [ ] **Phase 5**: KV cache write/read path integration
-- [ ] **Phase 6**: Flash attention dequant (non-fused, zero-risk)
-- [ ] **Phase 7**: CLI flags (`--cache-type-k tq3 --cache-type-v tq4`)
-- [ ] **Phase 8**: CUDA kernels (fused FA for peak performance)
+- [x] **Phase 2**: CPU quantize/dequantize with norm correction (pure C)
+- [x] **Phase 3**: Test suite (19/19 passing) + benchmark
+- [x] **Phase 4**: GGML drop-in integration files
+- [x] **Phase 5**: Integration guide for llama.cpp
+- [ ] **Phase 6**: llama.cpp PR submission
+- [ ] **Phase 7**: CUDA kernels (fused FA for peak performance)
+- [ ] **Phase 8**: Ollama native support
 
 ## How it works
 
@@ -144,6 +161,28 @@ Measured on random vectors (100 trials, dim=128):
 | **TQ2_0** | **2.5** | **6.4x** | — | **10 bytes** |
 
 TQ4 achieves **3x lower MSE** than Q4_0 at identical storage cost, thanks to the optimal codebook.
+
+## Community validation (from [llama.cpp #20969](https://github.com/ggml-org/llama.cpp/discussions/20969))
+
+Real-world results from independent implementations:
+
+| Source | Hardware | Finding |
+|--------|----------|---------|
+| **Madreag** | RTX 5090 | turbo2 **beats q8_0 by 5.4%** at 32K context |
+| **TheTom** | M5 Max | turbo3 at 98.7-99.5% of q8_0 speed, PPL +1.1% |
+| **Aaryan-Kapoor** | CPU | Zero speed penalty on prompt processing (20.1 vs 19.3 t/s) |
+| **scos-lab** | 8 models | K/V norm ratio predicts optimal bit allocation |
+| **sjoerdmaessen** | 2x L40S | 2x128K dual-slot from 1x82K — zero decode penalty |
+| **AmesianX** | DGX Spark | tbqp3/tbq3 at 5.2x compression, +1.1% PPL |
+| **spiritbuun** | RTX 3090 | 98.8% of q8_0 prefill speed |
+
+### Key optimization: Norm correction
+
+Stores `original_norm / ||reconstruction||` instead of raw norm. Zero decode cost, measurable quality improvement (-0.36% PPL). Discovered independently by TheTom (turbo3) and spiritbuun (turbo4).
+
+### K/V asymmetry (scos-lab finding)
+
+Keys need more precision than values. Qwen models show 100-180x K/V norm ratio. Recommended: 4-bit K, 2-3 bit V.
 
 ## License
 

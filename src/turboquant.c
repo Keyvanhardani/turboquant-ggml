@@ -200,7 +200,6 @@ static void quantize_block(const float *src, float *work,
                            const tq_codebook *cb) {
     /* 1. Compute L2 norm */
     float norm = tq_vec_norm(src, TQ_BLOCK_SIZE);
-    *norm_out = fp32_to_fp16(norm);
 
     /* 2. Normalize + copy to work buffer */
     float inv_norm = (norm > 1e-12f) ? (1.0f / norm) : 0.0f;
@@ -215,6 +214,19 @@ static void quantize_block(const float *src, float *work,
     for (int i = 0; i < TQ_BLOCK_SIZE; i++) {
         indices[i] = (uint8_t)quantize_scalar(work[i], cb->boundaries, cb->n_levels);
     }
+
+    /* 5. Norm correction (TheTom/spiritbuun optimization):
+     *    Store original_norm / ||reconstruction|| instead of raw norm.
+     *    This corrects the scale during dequant at zero decode cost.
+     *    Measured improvement: -0.36% PPL on real models. */
+    float recon[TQ_BLOCK_SIZE];
+    for (int i = 0; i < TQ_BLOCK_SIZE; i++) {
+        recon[i] = cb->centroids[indices[i]];
+    }
+    tq_wht(recon, TQ_BLOCK_SIZE);
+    float recon_norm = tq_vec_norm(recon, TQ_BLOCK_SIZE);
+    float corrected_norm = (recon_norm > 1e-12f) ? (norm / recon_norm) : 0.0f;
+    *norm_out = fp32_to_fp16(corrected_norm);
 }
 
 static void dequantize_block(const uint8_t *indices, uint16_t norm_fp16,
