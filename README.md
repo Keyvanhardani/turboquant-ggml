@@ -1,5 +1,7 @@
 # turboquant-ggml
 
+> **This library is now part of [DeepNetz](https://github.com/Keyvanhardani/deepnetz) — a complete LLM inference framework with 6 backends, Web UI, and KV cache optimization. Install via `pip install deepnetz`.**
+
 **First real implementation of Google's TurboQuant (ICLR 2026) for llama.cpp and Ollama.**
 
 Compress your LLM's KV cache by **4.6x at 3-bit** with near-zero quality loss. Run bigger models, longer contexts, less VRAM.
