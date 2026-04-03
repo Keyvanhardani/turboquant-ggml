@@ -156,13 +156,25 @@ Tested on wikitext-2 (ctx=512, 5 chunks) with our [llama.cpp integration](https:
 | **Llama-3.2-3B** Q4_K_M | 9.77 | 9.82 | **+0.4%** | 224 -> 63 MiB |
 | **Qwen2.5-3B** Q4_K_M | 9.14 | 9.84 | +7.7% | 72 -> 20 MiB |
 | **Qwen3-4B** Q4_K_M | 17.78 | 16.61 | **-6.6%** | 288 -> 81 MiB |
+| **Gemma-3-27B** Q2_K | 8.53 | 8.70 | **+2.0%** | — |
 | **Qwen3VL-8B** Q4_K_M | 8.15 | 8.57 | +5.2% | 288 -> 81 MiB |
 | **Qwen3VL-30B-A3B** Q4_K_M | 6.24 | 6.63 | +6.3% | 192 -> 54 MiB |
 | **Qwen3.5-35B-A3B** Q4_K_XL | 5.91 | 6.07 | **+2.7%** | 40 -> 11 MiB |
+| **Llama-3.3-70B** IQ2_M | 4.91 | — | — | — |
+| **Qwen3.5-122B-A10B** IQ2_XXS | — | — | — | — |
 
-Larger models benefit more from TurboQuant. The **Qwen3.5-35B** achieves only **+2.7% PPL** at 3.6x compression — and turbo3_0 (4.6x) is even better at **+2.0%** on this model.
+Tested from 3B to **122B** — all models produce correct output with turbo4_0 KV cache.
 
-Cross-platform verified: identical results on WSL2 Linux and native Windows.
+### Generation speed (RTX 4060, 8GB VRAM)
+
+| Model | f16 | turbo4_0 | Overhead |
+|-------|-----|----------|----------|
+| **Qwen3.5-35B-A3B** | 7.6 tok/s | 7.4 tok/s | -2.6% |
+| **Gemma-3-27B** | 2.4 tok/s | 2.3 tok/s | -4.2% |
+| **Qwen3.5-122B-A10B** | 1.3 tok/s | 1.3 tok/s | ~0% |
+| **Llama-3.3-70B** | 0.7 tok/s | 0.4 tok/s | — |
+
+Near-zero speed overhead. Cross-platform verified (WSL2 + Windows).
 
 ### Synthetic benchmarks (10k vectors, dim=128)
 
